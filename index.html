@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="src/leaflet.css">
+    <link rel="stylesheet" href="src/css/bootstrap.css">
+    <script src="src/leaflet.js"></script>
+    <script src="src/jquery-3.2.0.min.js"></script>
+    <script src="data/vietnam.geojson"></script>
+    <title>Leaflet</title>
+    <style>
+        #map123 {
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div id="content">
+
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div id="map123"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var mymap;
+        var lyrOSM;
+        $(document).ready(function () {
+            //Tao va add Map from JSON
+            mymap = L.map('map123',{center:[16.69,106.92],zoom:6});
+            // lyrOSM = L.geoJson(vietnam);
+            // mymap.addLayer(lyrOSM); 
+            
+            // //Tao va add Map from GeoServer
+            var wmsLayer= L.tileLayer.wms("http://localhost:8080/geoserver/haiphong1/wms", {
+                layers: 'haiphong1:vnm_polbndl_adm1_2014_pdc',
+                format: 'image/png'
+                // transparent: true
+            });
+            mymap.addLayer(wmsLayer);
+
+            // mymap.on('click',function(e){
+            //     alert(e.latlng.lat);
+            // })
+
+            //Xu ly su kien Click tren Map
+            mymap.on('click',function(e){
+                //alert(e.latlng.toString());
+                var lat=e.latlng.lat;
+                var long=e.latlng.lng;
+                $.ajax({
+                    type:'post',
+                    url:'processing.php',
+                    data:{lat:lat,long:long},
+                    success:function(data){
+                       alert(data);
+                    }
+                })
+            });
+            //Xu ly su kien Chuot phai tren Map
+            var greenIcon = L.icon({
+                iconUrl: 'src/images/leaf-red.png',
+
+                iconSize:     [38, 95], // size of the icon
+                shadowSize:   [50, 64], // size of the shadow
+                iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+                shadowAnchor: [4, 62],  // the same for the shadow
+                popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+            });
+
+            mymap.on('contextmenu',function(e){
+                // mymap.removeLayer(L.marker); // remove
+                L.marker(e.latlng,{icon: greenIcon}).addTo(mymap).bindPopup('Hello').openPopup();
+        });
+        });
+
+        
+    </script>
+</body>
+
+</html>
