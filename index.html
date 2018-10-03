@@ -7,10 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="src/leaflet.css">
     <link rel="stylesheet" href="src/css/bootstrap.css">
+    <link rel="stylesheet" href="src/style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <script src="src/leaflet.js"></script>
     <script src="src/jquery-3.2.0.min.js"></script>
     <script src="data/vietnam.geojson"></script>
-
     <title>Leaflet</title>
     <style>
         #map123 {
@@ -37,18 +38,22 @@
         var lyrOSM;
         $(document).ready(function () {
             //Tao va add Map from JSON
-            mymap = L.map('map123',{center:[20.51,106.40],zoom:8});
+            mymap = L.map('map123',{center:[20.2053674,105.9760791],zoom:10,layers: [
+        new L.TileLayer(
+            'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+            }
+        )
+    ]});
             // lyrOSM = L.geoJson(vietnam);
-            // mymap.addLayer(lyrOSM); 
-            
-               
-            // var baseL = L.tileLayer.vms("https://osm.org/go/4dvmsYHU");
-            // mymap.addLayer(baseL);
+            // mymap.addLayer(lyrOSM);
+
             // //Tao va add Map from GeoServer
-            var wmsLayer= L.tileLayer.wms("http://localhost:8080/geoserver/btl/wms", {
-                layers: 'btl:haiphong',
-                format: 'image/png'
-                // transparent: true
+            var wmsLayer= L.tileLayer.wms("http://localhost:8080/geoserver/NamDinh/wms", {
+                layers: 'NamDinh:namdinh',
+                format: 'image/png',
+                transparent: true
             });
             mymap.addLayer(wmsLayer);
 
@@ -87,7 +92,7 @@
         });
         });
 
-        
+
     </script>
 </body>
 
