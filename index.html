@@ -10,6 +10,7 @@
     <script src="src/leaflet.js"></script>
     <script src="src/jquery-3.2.0.min.js"></script>
     <script src="data/vietnam.geojson"></script>
+
     <title>Leaflet</title>
     <style>
         #map123 {
@@ -36,13 +37,16 @@
         var lyrOSM;
         $(document).ready(function () {
             //Tao va add Map from JSON
-            mymap = L.map('map123',{center:[16.69,106.92],zoom:6});
+            mymap = L.map('map123',{center:[20.51,106.40],zoom:8});
             // lyrOSM = L.geoJson(vietnam);
             // mymap.addLayer(lyrOSM); 
             
+               
+            // var baseL = L.tileLayer.vms("https://osm.org/go/4dvmsYHU");
+            // mymap.addLayer(baseL);
             // //Tao va add Map from GeoServer
-            var wmsLayer= L.tileLayer.wms("http://localhost:8080/geoserver/haiphong1/wms", {
-                layers: 'haiphong1:vnm_polbndl_adm1_2014_pdc',
+            var wmsLayer= L.tileLayer.wms("http://localhost:8080/geoserver/btl/wms", {
+                layers: 'btl:haiphong',
                 format: 'image/png'
                 // transparent: true
             });
