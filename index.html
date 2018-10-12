@@ -9,9 +9,11 @@
     <link rel="stylesheet" href="src/css/bootstrap.css">
     <script src="src/leaflet.js"></script>
     <script src="src/jquery-3.2.0.min.js"></script>
-    <script src="data/vietnam.geojson"></script>
+    <script src="data/namdinh.geojson"></script>
+    <script type="interactive.js"></script>
+    <link rel="stylesheet" type="text/css" href="src/css/mycss.css">
 
-    <title>Leaflet</title>
+    <title>Bản đồ du lịch Nam Định</title>
     <style>
         #map123 {
             height: 100vh;
@@ -37,11 +39,11 @@
         var lyrOSM;
         $(document).ready(function () {
             //Tao va add Map from JSON
-            mymap = L.map('map123',{center:[20.25,106.10],zoom:8, layers: [
+            mymap = L.map('map123',{center:[20.25,106.10],zoom:10, layers: [
         new L.TileLayer(
             'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             {
-                attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }
         )
     ]});
@@ -69,7 +71,7 @@
                 var long=e.latlng.lng;
                 $.ajax({
                     type:'post',
-                    url:'processing.php',
+                    url:'getclickdata.php',
                     data:{lat:lat,long:long},
                     success:function(data){
                        alert(data);
@@ -90,7 +92,114 @@
             mymap.on('contextmenu',function(e){
                 // mymap.removeLayer(L.marker); // remove
                 L.marker(e.latlng,{icon: greenIcon}).addTo(mymap).bindPopup('Hello').openPopup();
-        });
+        	});
+
+            // Interactive map
+             function getColor(d) {
+                return d > 500 ? '#800026' :
+                    d > 200  ? '#BD0026' :
+                    d > 100  ? '#E31A1C' :
+                    d > 50  ? '#FC4E2A' :
+                    d > 10   ? '#FD8D3C' :
+                    d > 5   ? '#FEB24C' :
+                    d > 1   ? '#FED976' :
+                                '#FFEDA0';
+            }
+
+            function style(feature) {
+                return {
+                    fillColor: getColor(feature.properties.density),
+                    weight: 2,
+                    opacity: 1,
+                    color: 'white',
+                    dashArray: '3',
+                    fillOpacity: 0.7
+                };
+            }
+            L.geoJson(namdinh, {style: style}).addTo(mymap);
+
+
+            function highlightFeature(e) {
+                var layer = e.target;
+                layer.setStyle({
+                    weight: 5,
+                    color: '#666',
+                    dashArray: '',
+                    fillOpacity: 0.7
+                });
+
+                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                    layer.bringToFront();
+                }
+                info.update(layer.feature.properties);
+            }
+
+            function resetHighlight(e) {
+                geojson.resetStyle(e.target);
+                info.update();
+            }
+            
+            // var geojson;
+            // geojson = L.geoJson(...);
+
+            function zoomToFeature(e) {
+                mymap.fitBounds(e.target.getBounds());
+            }
+
+            function onEachFeature(feature, layer) {
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                    click: zoomToFeature
+                });
+            }
+
+            geojson = L.geoJson(namdinh, {
+                style: style,
+                onEachFeature: onEachFeature
+            }).addTo(mymap);
+
+            var info = L.control();
+
+            info.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+                this.update();
+                return this._div;
+            };
+
+            // method that we will use to update the control based on feature properties passed
+            info.update = function (props) {
+                this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
+                    '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
+                    : 'Hover over a state');
+            };
+            info.addTo(mymap);
+
+
+            var legend = L.control({position: 'bottomright'});
+
+            legend.onAdd = function (map) {
+
+                var div = L.DomUtil.create('div', 'info legend'),
+                    grades = [0, 10, 20, 50, 100, 200, 500, 1000],
+                    labels = [];
+
+                // loop through our density intervals and generate a label with a colored square for each interval
+                for (var i = 0; i < grades.length; i++) {
+                    div.innerHTML +=
+                        '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                }
+
+                return div;
+            };
+
+            legend.addTo(mymap);
+
+
+
+
+
         });
 
         
