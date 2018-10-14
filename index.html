@@ -7,11 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="src/leaflet.css">
     <link rel="stylesheet" href="src/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="src/css/mycss.css">
+    <link rel="stylesheet" type="text/css" href="src/leaflet-routing-machine.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    <!-- <link rel="stylesheet" type="img/png" href="src/images/leaflet.routing.icons.png"> -->
     <script src="src/leaflet.js"></script>
     <script src="src/jquery-3.2.0.min.js"></script>
     <script src="data/namdinh.geojson"></script>
+    <script src="Control.Geocoder.js"></script>
     <script type="interactive.js"></script>
-    <link rel="stylesheet" type="text/css" href="src/css/mycss.css">
+    <!-- <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script> -->
+    <script src="src/leaflet-routing-machine.js"></script>
+    <script src="config.js"></script>
+>
+    
 
     <title>Bản đồ du lịch Nam Định</title>
     <style>
@@ -40,62 +49,56 @@
         $(document).ready(function () {
             //Tao va add Map from JSON
             mymap = L.map('map123',{center:[20.25,106.10],zoom:10, layers: [
-        new L.TileLayer(
-            'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }
-        )
-    ]});
-            // lyrOSM = L.geoJson(vietnam);
-            // mymap.addLayer(lyrOSM); 
-         
-            // var baseL = L.tileLayer.vms("https://osm.org/go/4dvmsYHU");
-            // mymap.addLayer(baseL);
-            // //Tao va add Map from GeoServer
-            var wmsLayer= L.tileLayer.wms("http://localhost:8080/geoserver/NamDinh/wms", {
-                layers: 'NamDinh:vnm_polbnda_adm3_2014_pdc',
-                format: 'image/png',
-                transparent: true
-            });
-            mymap.addLayer(wmsLayer);
-
-            // mymap.on('click',function(e){
-            //     alert(e.latlng.lat);
-            // })
-
-            //Xu ly su kien Click tren Map
-            mymap.on('click',function(e){
-                //alert(e.latlng.toString());
-                var lat=e.latlng.lat;
-                var long=e.latlng.lng;
-                $.ajax({
-                    type:'post',
-                    url:'getclickdata.php',
-                    data:{lat:lat,long:long},
-                    success:function(data){
-                       alert(data);
+                new L.TileLayer(
+                    'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     }
-                })
-            });
-            //Xu ly su kien Chuot phai tren Map
-            var greenIcon = L.icon({
-                iconUrl: 'src/images/leaf-red.png',
+                )
+            ]});
+        
+            // //Tao va add Map from GeoServer
+            // var wmsLayer= L.tileLayer.wms("http://localhost:8080/geoserver/NamDinh/wms", {
+            //     layers: 'NamDinh:vnm_polbnda_adm3_2014_pdc',
+            //     format: 'image/png',
+            //     transparent: true
+            // });
+            // mymap.addLayer(wmsLayer);
 
-                iconSize:     [38, 95], // size of the icon
-                shadowSize:   [50, 64], // size of the shadow
-                iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-                shadowAnchor: [4, 62],  // the same for the shadow
-                popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-            });
+            //left click
+         //    mymap.on('click',function(e){
+         //        //alert(e.latlng.toString());
+         //        var lat=e.latlng.lat;
+         //        var long=e.latlng.lng;
+         //        $.ajax({
+         //            type:'post',
+         //            url:'getclickdata.php',
+         //            data:{lat:lat,long:long},
+         //            success:function(data){
+         //               alert(data);
+         //            }
+         //        })
+         //    });
 
-            mymap.on('contextmenu',function(e){
-                // mymap.removeLayer(L.marker); // remove
-                L.marker(e.latlng,{icon: greenIcon}).addTo(mymap).bindPopup('Hello').openPopup();
-        	});
+         //    //Right click
+         //    var greenIcon = L.icon({
+         //        iconUrl: 'src/images/leaf-red.png',
+
+         //        iconSize:     [38, 95], // size of the icon
+         //        shadowSize:   [50, 64], // size of the shadow
+         //        iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+         //        shadowAnchor: [4, 62],  // the same for the shadow
+         //        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+         //    });
+
+         //    mymap.on('contextmenu',function(e){
+         //        L.marker(e.latlng,{icon: greenIcon}).addTo(mymap).bindPopup('Hello').openPopup();
+        	// });
+
+
 
             // Interactive map
-             function getColor(d) {
+            function getColor(d) {
                 return d > 500 ? '#800026' :
                     d > 200  ? '#BD0026' :
                     d > 100  ? '#E31A1C' :
@@ -113,7 +116,7 @@
                     opacity: 1,
                     color: 'white',
                     dashArray: '3',
-                    fillOpacity: 0.7
+                    fillOpacity: 0.3
                 };
             }
             L.geoJson(namdinh, {style: style}).addTo(mymap);
@@ -125,7 +128,7 @@
                     weight: 5,
                     color: '#666',
                     dashArray: '',
-                    fillOpacity: 0.7
+                    fillOpacity: 0.4
                 });
 
                 if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
@@ -139,9 +142,6 @@
                 info.update();
             }
             
-            // var geojson;
-            // geojson = L.geoJson(...);
-
             function zoomToFeature(e) {
                 mymap.fitBounds(e.target.getBounds());
             }
@@ -169,8 +169,8 @@
 
             // method that we will use to update the control based on feature properties passed
             info.update = function (props) {
-                this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
-                    '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
+                this._div.innerHTML = '<h4>Diện tích</h4>' +  (props ?
+                    '<b>' + props.adm3_name + '</b><br />' + props.density + ' m<sup>2</sup>'
                     : 'Hover over a state');
             };
             info.addTo(mymap);
@@ -198,6 +198,58 @@
 
 
 
+            // Routing
+
+            // tạo router
+            var control = L.Routing.control(L.extend(window.lrmConfig,
+                {serviceUrl: 'http://localhost:5000/route/v1'},
+
+            {
+                language: 'en',
+                geocoder: L.Control.Geocoder.nominatim(),
+                routeWhileDragging: true,
+                reverseWaypoints: true,
+                showAlternatives: true,
+                altLineOptions: {
+                    styles: [
+                        {color: 'black', opacity: 0.15, weight: 9},
+                        {color: 'white', opacity: 0.8, weight: 6},
+                        {color: 'blue', opacity: 0.5, weight: 2}
+                    ]
+                }
+            })).addTo(mymap);
+
+            L.Routing.errorControl(control).addTo(mymap);
+
+
+            // tạo popup khi click
+            function createButton(label, container) {
+                var btn = L.DomUtil.create('button', '', container);
+                btn.setAttribute('type', 'button');
+                btn.innerHTML = label;
+                return btn;
+            }
+
+            mymap.on('click', function(e) {
+                var container = L.DomUtil.create('div'),
+                    startBtn = createButton('Start from this location', container),
+                    destBtn = createButton('Go to this location', container);
+
+                L.popup()
+                    .setContent(container)
+                    .setLatLng(e.latlng)
+                    .openOn(mymap);
+
+                L.DomEvent.on(startBtn, 'click', function() {
+                    control.spliceWaypoints(0, 1, e.latlng);
+                    mymap.closePopup();
+                });
+
+                L.DomEvent.on(destBtn, 'click', function() {
+                    control.spliceWaypoints(control.getWaypoints().length - 1, 1, e.latlng);
+                    mymap.closePopup();
+                });    
+            });
 
 
         });
